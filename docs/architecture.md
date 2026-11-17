@@ -79,8 +79,8 @@ flowchart TD
 
 ## 3. Concurrency & Fault Isolation Guarantees
 
-1. **Non-Blocking Execution**:
-   Each platform request executes asynchronously via HTTPX over non-blocking sockets. A slow platform or high-latency network hop does not block sibling adapters.
+1. **Non-Blocking Concurrent Execution**:
+   Each platform request executes asynchronously via HTTPX over non-blocking sockets. All adapters run concurrently through `asyncio.gather()`. However, because `POST /posting` is a synchronous aggregation endpoint, the total HTTP response time of `/posting` is bounded by the slowest individual platform (or the configured client timeout of 10.0 seconds).
 2. **Absolute Fault Isolation**:
    If an adapter raises an unexpected exception or the platform API returns HTTP 401, 429, 500, or drops the connection, the exception is caught, logged, and converted into a `PlatformResult(status=failed)`. Other platforms continue execution unimpeded.
 3. **Deterministic Response Guarantees**:

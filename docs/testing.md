@@ -58,7 +58,10 @@ To run real publishing requests against live platforms configured in your `.env`
 pytest tests/test_live_publishing.py --run-live -v
 ```
 
-If an adapter is not configured in `.env`, the test cleanly skips with an informative message.
+> [!IMPORTANT]
+> **Authentication & Authorization Notice**:
+> Live tests execute genuine, state-changing API calls to external services. They are skipped by default. Only run live tests when valid credentials have been supplied in `.env` and explicit authorization has been granted to publish test messages to those target accounts/channels.
+> If an adapter is not configured in `.env`, the test cleanly skips with an informative message.
 
 ---
 
