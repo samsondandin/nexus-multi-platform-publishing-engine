@@ -36,20 +36,27 @@ app = FastAPI(
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Centralized handler for request validation failures, returning structured 422 errors."""
-    error_messages = []
+    error_details = []
+    messages = []
     for err in exc.errors():
         loc = " -> ".join(str(l) for l in err.get("loc", []))
         msg = err.get("msg", "Validation error")
-        error_messages.append(f"{loc}: {msg}" if loc else msg)
+        error_type = err.get("type", "value_error")
+        messages.append(f"{loc}: {msg}" if loc else msg)
+        error_details.append({
+            "loc": err.get("loc", []),
+            "msg": msg,
+            "type": error_type,
+        })
 
-    formatted_error = "; ".join(error_messages)
+    formatted_error = "; ".join(messages)
     logger.warning("Request validation failed on %s: %s", request.url.path, formatted_error)
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "detail": formatted_error,
-            "errors": exc.errors(),
+            "errors": error_details,
         },
     )
 
