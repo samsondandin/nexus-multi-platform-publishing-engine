@@ -210,7 +210,7 @@ class TestPostingIntegration:
             # 1. Missing URL
             resp1 = await ac.post("/posting", json={"message": "This message has no URL at all."})
             assert resp1.status_code == 422
-            assert "at least one valid HTTP or HTTPS URL" in resp1.json()["detail"]
+            assert "exactly one valid HTTP or HTTPS URL" in resp1.json()["detail"]
 
             # 2. Empty message
             resp2 = await ac.post("/posting", json={"message": ""})

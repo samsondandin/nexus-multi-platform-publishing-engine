@@ -102,7 +102,7 @@ class BasePlatformAdapter(ABC):
         if created_at is not None:
             utc_dt = created_at.astimezone(timezone.utc)
             date_str = utc_dt.strftime("%Y-%m-%d")
-            time_str = utc_dt.strftime("%H:%M:%SS") if "%H:%M:%SS" == "%H:%M:%S" else utc_dt.strftime("%H:%M:%S")
+            time_str = utc_dt.strftime("%H:%M:%S")
         else:
             date_str, time_str = self.current_utc_timestamps()
 
