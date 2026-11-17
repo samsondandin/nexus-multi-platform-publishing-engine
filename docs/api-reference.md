@@ -1,0 +1,174 @@
+# NEXUS API Reference
+
+Base URL: `http://localhost:4000`
+
+Interactive OpenAPI Documentation:
+- Swagger UI: `http://localhost:4000/docs`
+- ReDoc: `http://localhost:4000/redoc`
+
+---
+
+## Endpoints
+
+### 1. Multi-Platform Publishing
+
+`POST /posting`
+
+Publish a validated message across all configured platforms concurrently.
+
+#### Request Headers
+- `Content-Type: application/json`
+
+#### Request Body
+```json
+{
+  "message": "Check out our latest business platform and grow your online visibility. https://example.com"
+}
+```
+
+#### Validation Constraints
+- `message`: Required string.
+- Length: 1 to 200 characters inclusive (never silently truncated).
+- URL Requirement: Must contain **exactly one** valid HTTP or HTTPS URL.
+- Malformed URLs or unsupported protocols (`ftp://`, `ws://`, etc.) will be rejected with `HTTP 422`.
+
+#### Successful Response (`HTTP 200 OK`)
+```json
+{
+  "success": false,
+  "overall_status": "partial_success",
+  "results": [
+    {
+      "platform": "Bluesky",
+      "status": "success",
+      "posted_url": "https://bsky.app/profile/alice.bsky.social/post/3k123456789",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "14:30:15",
+      "error": null
+    },
+    {
+      "platform": "Mastodon",
+      "status": "failed",
+      "posted_url": null,
+      "public_access": null,
+      "date": "2026-11-17",
+      "time": "14:30:16",
+      "error": "Authentication failed: Invalid or unauthorized Mastodon access token."
+    },
+    {
+      "platform": "Telegram",
+      "status": "success",
+      "posted_url": "https://t.me/nexus_channel/101",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "14:30:15",
+      "error": null
+    },
+    {
+      "platform": "Discord",
+      "status": "success",
+      "posted_url": "https://discord.com/channels/99887766/77889900/112233445566",
+      "public_access": false,
+      "date": "2026-11-17",
+      "time": "14:30:15",
+      "error": null
+    },
+    {
+      "platform": "Reddit",
+      "status": "unconfigured",
+      "posted_url": null,
+      "public_access": null,
+      "date": null,
+      "time": null,
+      "error": "Reddit adapter is unconfigured: missing credentials in environment variables."
+    }
+  ]
+}
+```
+
+#### Error Response (`HTTP 422 Unprocessable Content`)
+```json
+{
+  "detail": "body -> message: Value error, Message length (215 characters) exceeds the maximum allowed limit of 200 characters. Messages are never silently truncated.",
+  "errors": [
+    {
+      "loc": ["body", "message"],
+      "msg": "Value error, Message length (215 characters) exceeds the maximum allowed limit of 200 characters. Messages are never silently truncated.",
+      "type": "value_error"
+    }
+  ]
+}
+```
+
+---
+
+### 2. Service Health Check
+
+`GET /health`
+
+Returns application operational status and platform configuration metrics.
+
+#### Response (`HTTP 200 OK`)
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "environment": "production",
+  "configured_platforms_count": 4,
+  "total_platforms_count": 5
+}
+```
+
+---
+
+### 3. Supported Platforms Directory
+
+`GET /platforms`
+
+Returns metadata, documentation links, and configuration status for all adapters.
+
+#### Response (`HTTP 200 OK`)
+```json
+{
+  "total_platforms": 5,
+  "configured_platforms": 4,
+  "platforms": [
+    {
+      "platform": "Bluesky",
+      "configured": true,
+      "public_access_supported": true,
+      "description": "Decentralized social network powered by the AT Protocol.",
+      "docs_url": "https://docs.bsky.app/docs/category/http-reference"
+    },
+    {
+      "platform": "Mastodon",
+      "configured": true,
+      "public_access_supported": true,
+      "description": "Federated open-source social network using the Mastodon REST API.",
+      "docs_url": "https://docs.joinmastodon.org/methods/statuses/"
+    },
+    {
+      "platform": "Telegram",
+      "configured": true,
+      "public_access_supported": true,
+      "description": "Cloud-based messaging platform and broadcast channels via the Telegram Bot API.",
+      "docs_url": "https://core.telegram.org/bots/api#sendmessage"
+    },
+    {
+      "platform": "Discord",
+      "configured": true,
+      "public_access_supported": false,
+      "description": "Community messaging platform using official Discord Execute Webhook API.",
+      "docs_url": "https://discord.com/developers/docs/resources/webhook#execute-webhook"
+    },
+    {
+      "platform": "Reddit",
+      "configured": false,
+      "public_access_supported": true,
+      "description": "Social news aggregation and discussion platform via the Reddit OAuth2 API.",
+      "docs_url": "https://www.reddit.com/dev/api#POST_api_submit"
+    }
+  ]
+}
+```
