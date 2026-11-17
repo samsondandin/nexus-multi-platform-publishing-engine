@@ -1,6 +1,7 @@
 """Application configuration module loaded via Pydantic Settings."""
 
 from typing import Optional
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

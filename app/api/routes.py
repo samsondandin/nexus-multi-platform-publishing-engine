@@ -1,6 +1,7 @@
 """FastAPI route handlers for NEXUS."""
 
 from fastapi import APIRouter, Depends, status
+
 from app.config import settings
 from app.schemas import (
     HealthResponse,

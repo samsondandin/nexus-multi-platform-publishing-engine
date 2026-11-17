@@ -1,6 +1,7 @@
 """Reddit OAuth2 API platform adapter."""
 
 import httpx
+
 from app.config import settings
 from app.platforms.base import BasePlatformAdapter
 from app.schemas import PlatformResult

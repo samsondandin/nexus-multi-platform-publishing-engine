@@ -1,8 +1,9 @@
 """Unit tests for message validation logic."""
 
 import pytest
-from app.utils.validation import validate_message_content, extract_and_validate_url
+
 from app.schemas import PostingRequest
+from app.utils.validation import extract_and_validate_url, validate_message_content
 
 
 class TestValidation:

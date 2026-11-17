@@ -1,7 +1,9 @@
 """Mastodon (REST API) platform adapter."""
 
 from datetime import datetime
+
 import httpx
+
 from app.config import settings
 from app.platforms.base import BasePlatformAdapter
 from app.schemas import PlatformResult
@@ -62,8 +64,10 @@ class MastodonAdapter(BasePlatformAdapter):
                     data=payload,
                 )
 
-                if resp.status_code == 401 or resp.status_code == 403:
-                    return self.create_failed_result("Authentication failed: Invalid or unauthorized Mastodon access token.")
+                if resp.status_code in (401, 403):
+                    return self.create_failed_result(
+                        "Authentication failed: Invalid or unauthorized Mastodon access token."
+                    )
                 elif resp.status_code == 422:
                     return self.create_failed_result(f"Unprocessable status payload: {resp.text}")
                 elif resp.status_code == 429:

@@ -2,7 +2,9 @@
 
 from enum import Enum
 from typing import List, Optional
+
 from pydantic import BaseModel, Field, field_validator
+
 from app.utils.validation import validate_message_content
 
 

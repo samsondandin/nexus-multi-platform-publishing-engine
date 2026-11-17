@@ -3,6 +3,7 @@
 import pytest
 import respx
 from httpx import ASGITransport, AsyncClient, Response
+
 from app.config import settings
 from app.main import app
 from app.schemas import OverallStatus, PlatformPublishStatus
@@ -38,7 +39,9 @@ class TestPostingIntegration:
     async def test_all_platforms_succeed(self):
         # Bluesky mocks
         respx.post("https://bsky.social/xrpc/com.atproto.server.createSession").mock(
-            return_value=Response(200, json={"accessJwt": "jwt123", "did": "did:plc:alice", "handle": "alice.bsky.social"})
+            return_value=Response(
+                200, json={"accessJwt": "jwt123", "did": "did:plc:alice", "handle": "alice.bsky.social"}
+            )
         )
         respx.post("https://bsky.social/xrpc/com.atproto.repo.createRecord").mock(
             return_value=Response(200, json={"uri": "at://did:plc:alice/app.bsky.feed.post/12345"})
@@ -49,7 +52,9 @@ class TestPostingIntegration:
         )
         # Telegram mock
         respx.post("https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/sendMessage").mock(
-            return_value=Response(200, json={"ok": True, "result": {"message_id": 101, "chat": {"username": "nexus_channel"}}})
+            return_value=Response(
+                200, json={"ok": True, "result": {"message_id": 101, "chat": {"username": "nexus_channel"}}}
+            )
         )
         # Discord mock
         respx.post("https://discord.com/api/webhooks/123/token_abc?wait=true").mock(
@@ -88,7 +93,9 @@ class TestPostingIntegration:
         """Failure on Mastodon must not cancel or fail Bluesky, Telegram, Discord, or Reddit."""
         # Bluesky succeeds
         respx.post("https://bsky.social/xrpc/com.atproto.server.createSession").mock(
-            return_value=Response(200, json={"accessJwt": "jwt123", "did": "did:plc:alice", "handle": "alice.bsky.social"})
+            return_value=Response(
+                200, json={"accessJwt": "jwt123", "did": "did:plc:alice", "handle": "alice.bsky.social"}
+            )
         )
         respx.post("https://bsky.social/xrpc/com.atproto.repo.createRecord").mock(
             return_value=Response(200, json={"uri": "at://did:plc:alice/app.bsky.feed.post/12345"})
@@ -99,7 +106,9 @@ class TestPostingIntegration:
         )
         # Telegram succeeds
         respx.post("https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/sendMessage").mock(
-            return_value=Response(200, json={"ok": True, "result": {"message_id": 101, "chat": {"username": "nexus_channel"}}})
+            return_value=Response(
+                200, json={"ok": True, "result": {"message_id": 101, "chat": {"username": "nexus_channel"}}}
+            )
         )
         # Discord succeeds
         respx.post("https://discord.com/api/webhooks/123/token_abc?wait=true").mock(

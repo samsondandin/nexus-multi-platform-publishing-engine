@@ -2,18 +2,19 @@
 
 import asyncio
 from typing import List, Sequence
+
 from app.platforms.base import BasePlatformAdapter
 from app.platforms.bluesky import BlueskyAdapter
-from app.platforms.mastodon import MastodonAdapter
-from app.platforms.telegram import TelegramAdapter
 from app.platforms.discord import DiscordAdapter
+from app.platforms.mastodon import MastodonAdapter
 from app.platforms.reddit import RedditAdapter
+from app.platforms.telegram import TelegramAdapter
 from app.schemas import (
     OverallStatus,
+    PlatformInfo,
     PlatformPublishStatus,
     PlatformResult,
     PostingResponse,
-    PlatformInfo,
 )
 from app.utils.logging import logger
 

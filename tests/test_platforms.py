@@ -3,12 +3,13 @@
 import pytest
 import respx
 from httpx import Response
+
 from app.config import settings
 from app.platforms.bluesky import BlueskyAdapter
-from app.platforms.mastodon import MastodonAdapter
-from app.platforms.telegram import TelegramAdapter
 from app.platforms.discord import DiscordAdapter
+from app.platforms.mastodon import MastodonAdapter
 from app.platforms.reddit import RedditAdapter
+from app.platforms.telegram import TelegramAdapter
 from app.schemas import PlatformPublishStatus
 
 

@@ -2,9 +2,11 @@
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
 from app.api.routes import router
 from app.config import settings
 from app.utils.logging import logger
@@ -39,7 +41,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     error_details = []
     messages = []
     for err in exc.errors():
-        loc = " -> ".join(str(l) for l in err.get("loc", []))
+        loc = " -> ".join(str(part) for part in err.get("loc", []))
         msg = err.get("msg", "Validation error")
         error_type = err.get("type", "value_error")
         messages.append(f"{loc}: {msg}" if loc else msg)
