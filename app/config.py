@@ -1,21 +1,34 @@
 """Application configuration module loaded via Pydantic Settings."""
 
+import os
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """NEXUS core application and platform settings."""
+    """NEXUS core application, LLM, and platform settings."""
 
-    # Server Settings
-    PORT: int = 4000
+    # Server Settings (default 4000 locally, or uses $PORT injected by Cloud Run / environment)
+    PORT: int = int(os.getenv("PORT", "4000"))
     HOST: str = "0.0.0.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "production"
-    REQUEST_TIMEOUT_SECONDS: float = 10.0
+    REQUEST_TIMEOUT_SECONDS: float = 15.0
     MAX_RETRIES: int = 2
 
+    # LLM Providers Configuration
+    DEFAULT_LLM_PROVIDER: str = "gemini"
+    DEFAULT_GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_API_KEY: Optional[str] = None
+
+    OPENAI_API_KEY: Optional[str] = None
+    DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
+
+    GROQ_API_KEY: Optional[str] = None
+    DEFAULT_GROQ_MODEL: str = "llama-3.3-70b-versatile"
+
+    # Social Publishing Platforms
     # Bluesky (AT Protocol)
     BLUESKY_HANDLE: Optional[str] = None
     BLUESKY_APP_PASSWORD: Optional[str] = None

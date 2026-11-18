@@ -1,4 +1,4 @@
-"""Pydantic request and response schemas for NEXUS."""
+"""Pydantic request and response schemas for NEXUS Link Analysis and Posting."""
 
 from enum import Enum
 from typing import List, Optional
@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.utils.validation import validate_message_content
 
+# ==============================================================================
+# 1. Multi-Platform Publishing Schemas (POST /posting)
+# ==============================================================================
 
 class OverallStatus(str, Enum):
     """Overall status across all attempted publishing platforms."""
@@ -92,6 +95,8 @@ class HealthResponse(BaseModel):
     environment: str
     configured_platforms_count: int
     total_platforms_count: int
+    llm_configured: bool
+    active_llm_provider: str
 
 
 class PlatformInfo(BaseModel):
@@ -110,3 +115,99 @@ class PlatformsResponse(BaseModel):
     total_platforms: int
     configured_platforms: int
     platforms: List[PlatformInfo]
+
+
+# ==============================================================================
+# 2. AI-Powered Website Link Analysis Schemas (POST /link-analysis)
+# ==============================================================================
+
+class LinkAnalysisRequest(BaseModel):
+    """Payload for POST /link-analysis endpoint."""
+
+    url: str = Field(
+        ...,
+        description="The website URL to scrape and analyze. Must be a valid public HTTP or HTTPS web address.",
+        examples=["https://stripe.com"],
+    )
+    provider: Optional[str] = Field(
+        None,
+        description="Optional LLM provider to override default ('gemini', 'openai', or 'groq')",
+    )
+
+    @field_validator("url")
+    @classmethod
+    def validate_website_url(cls, v: str) -> str:
+        trimmed = v.strip() if v else ""
+        if not trimmed:
+            raise ValueError("URL cannot be empty.")
+        if not (trimmed.startswith("http://") or trimmed.startswith("https://")):
+            raise ValueError("Website URL must start with http:// or https://")
+        return trimmed
+
+
+class ServiceItem(BaseModel):
+    """Service or core offering discovered on the website."""
+
+    name: str = Field(..., description="Service or product title")
+    description: str = Field(..., description="Description of the service and value proposition")
+
+
+class TargetAudience(BaseModel):
+    """Target customer audience breakdown."""
+
+    primary_audience: str = Field(..., description="Primary ideal customer profile (ICP)")
+    secondary_audience: str = Field(..., description="Secondary customer segment or market")
+    industry_verticals: List[str] = Field(default_factory=list, description="Target industry verticals or sectors")
+
+
+class CompetitorAnalysis(BaseModel):
+    """Competitive landscape and positioning."""
+
+    direct_competitors: List[str] = Field(default_factory=list, description="Direct competitors offering similar services")
+    indirect_competitors: List[str] = Field(default_factory=list, description="Indirect or substitute competitors")
+    competitive_advantage: str = Field(..., description="Key differentiators and unique selling points")
+
+
+class PlatformSearchQueries(BaseModel):
+    """5 targeted search queries tailored across Google, Facebook, Instagram, LinkedIn, and X."""
+
+    google: List[str] = Field(..., description="High-intent search queries for Google Search / SEO")
+    facebook: List[str] = Field(..., description="Community and interest-based queries for Facebook")
+    instagram: List[str] = Field(..., description="Hashtags and discovery keywords for Instagram")
+    linkedin: List[str] = Field(..., description="B2B, hiring, and professional solution queries for LinkedIn")
+    x: List[str] = Field(..., description="Hashtags, trending topics, and conversational queries for X (Twitter)")
+
+
+class SEORecommendations(BaseModel):
+    """Actionable search engine optimization recommendations."""
+
+    title_and_metadata: List[str] = Field(default_factory=list, description="Title tag and meta description suggestions")
+    content_and_keywords: List[str] = Field(default_factory=list, description="Content depth, semantic keywords, and heading improvements")
+    technical_seo: List[str] = Field(default_factory=list, description="Technical SEO, schema markup, and performance insights")
+
+
+class LLMMetadata(BaseModel):
+    """Telemetry describing LLM execution and cost estimation."""
+
+    provider: str = Field(..., description="LLM provider invoked (e.g. Google Gemini, OpenAI)")
+    model: str = Field(..., description="Model identifier used (e.g. gemini-2.5-flash)")
+    prompt_tokens: int = Field(default=0, description="Estimated input/prompt token count")
+    completion_tokens: int = Field(default=0, description="Estimated output/completion token count")
+    estimated_cost_usd: float = Field(default=0.0, description="Estimated query cost in USD based on provider pricing")
+
+
+class LinkAnalysisResponse(BaseModel):
+    """Structured response contract for POST /link-analysis."""
+
+    url: str = Field(..., description="Analyzed website URL")
+    scraped_title: Optional[str] = Field(None, description="Page title extracted from HTML")
+    scraped_description: Optional[str] = Field(None, description="Meta description extracted from HTML")
+    top_5_services: List[ServiceItem] = Field(..., description="Exactly top five services or products identified")
+    target_audience: TargetAudience = Field(..., description="Target audience identification")
+    competitor_analysis: CompetitorAnalysis = Field(..., description="Competitor and market positioning analysis")
+    target_search_queries: PlatformSearchQueries = Field(
+        ...,
+        description="Target search queries across Google, Facebook, Instagram, LinkedIn, and X",
+    )
+    seo_improvements: SEORecommendations = Field(..., description="Actionable SEO improvement recommendations")
+    llm_metadata: LLMMetadata = Field(..., description="Execution telemetry and cost estimation")

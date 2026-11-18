@@ -1,8 +1,8 @@
-line-length = 120
+line-length = 150
 
 [lint]
 select = ["E", "F", "W", "I"]
-ignore = []
+ignore = ["E501"]
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]

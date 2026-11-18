@@ -1,0 +1,12 @@
+# Ignore local virtualenvs, git, cache, and secrets when building container
+.venv/
+.env
+.env.*
+.git/
+.gitignore
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+tests/
+docs/

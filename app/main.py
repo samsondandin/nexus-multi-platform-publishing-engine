@@ -1,4 +1,4 @@
-"""FastAPI application entry point for NEXUS Multi-Platform Publishing Engine."""
+"""FastAPI application entry point for NEXUS Multi-Platform Publishing & Link Analysis Engine."""
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -9,26 +9,33 @@ from fastapi.responses import JSONResponse
 
 from app.api.routes import router
 from app.config import settings
+from app.services.llm.manager import llm_service
 from app.utils.logging import logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context for startup and shutdown event handling."""
-    logger.info("Initializing NEXUS Multi-Platform Publishing Engine...")
+    logger.info("Initializing NEXUS Engine...")
     logger.info("Environment: %s | Host: %s | Port: %d", settings.ENVIRONMENT, settings.HOST, settings.PORT)
+    active_llm = llm_service.get_provider()
+    logger.info("Default LLM Provider: %s (Configured: %s)", active_llm.provider_name, active_llm.is_configured())
     yield
     logger.info("Shutting down NEXUS Engine. Cleaning up resources.")
 
 
 app = FastAPI(
-    title="NEXUS — Multi-Platform Publishing Engine",
+    title="NEXUS — AI-Powered Website Link Analysis & Multi-Platform Engine",
     description=(
-        "A modular asynchronous Python publishing engine built with FastAPI, "
-        "integrating multiple third-party platforms through their official APIs "
-        "with independent execution, validation, and fault-tolerant publishing."
+        "A modular asynchronous Python engine built with FastAPI. Features:\n"
+        "1. AI-Powered Website Link Analysis (`POST /link-analysis`) with SSRF protection, "
+        "HTML extraction, structured Pydantic output, top 5 services, target audience, "
+        "competitor analysis, search queries for 5 platforms (Google, FB, IG, LinkedIn, X), "
+        "actionable SEO improvements, and LLM cost estimation.\n"
+        "2. Fault-isolated multi-platform social publisher (`POST /posting`) supporting Bluesky, "
+        "Mastodon, Telegram, Discord, and Reddit."
     ),
-    version="1.0.0",
+    version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -72,12 +79,13 @@ async def root() -> dict[str, str]:
     """Project metadata and direct links to API documentation."""
     return {
         "project": "NEXUS",
-        "name": "Multi-Platform Publishing Engine",
-        "version": "1.0.0",
-        "description": "Modular asynchronous publishing engine for social networks and messaging platforms.",
+        "name": "AI-Powered Website Link Analysis & Publishing Engine",
+        "version": "2.0.0",
+        "description": "FastAPI engine for website link analysis & multi-platform social broadcasting.",
         "documentation": "/docs",
         "redoc": "/redoc",
         "health": "/health",
+        "link_analysis_endpoint": "POST /link-analysis",
         "posting_endpoint": "POST /posting",
     }
 
